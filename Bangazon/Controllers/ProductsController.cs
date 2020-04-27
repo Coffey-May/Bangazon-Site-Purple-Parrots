@@ -9,6 +9,7 @@ using Bangazon.Data;
 using Bangazon.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Bangazon.Models.ProductViewModels;
 
 namespace Bangazon.Controllers
 {
@@ -49,6 +50,7 @@ namespace Bangazon.Controllers
                 .Include(p => p.ProductType)
                 .Include(p => p.User)
                 .FirstOrDefaultAsync(m => m.ProductId == id);
+            
             if (product == null)
             {
                 return NotFound();
@@ -58,29 +60,61 @@ namespace Bangazon.Controllers
         }
 
         // GET: Products/Create
-        public IActionResult Create()
+        public async Task<ActionResult> Create()
         {
-            ViewData["ProductTypeId"] = new SelectList(_context.ProductType, "ProductTypeId", "Label");
-            ViewData["UserId"] = new SelectList(_context.ApplicationUsers, "Id", "Id");
-            return View();
+            var productTypeOptions = await _context.ProductType
+                .Select(pt => new SelectListItem() { 
+                    Text = pt.Label, 
+                    Value = pt.ProductTypeId.ToString() 
+                })
+                .ToListAsync();
+
+            var viewModel = new ProductFormViewModel();
+            viewModel.ProductTypeOptions = productTypeOptions;
+
+            return View(viewModel);
         }
 
         // POST: Products/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductId,DateCreated,Description,Title,Price,Quantity,UserId,City,ImagePath,Active,ProductTypeId")] Product product)
+        public async Task<ActionResult> Create([Bind("ProductId,DateCreated,Description,Title,Price,Quantity,UserId,City,ImagePath,Active,ProductTypeId")] ProductFormViewModel productViewModel)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _context.Add(product);
+                //gets the current user, uses custom method created at bottom
+                //you will plug in the user.Id in the product
+                var user = await GetCurrentUserAsync();
+
+                //builds up our new product using the data submitted from the form, 
+                //represented here as "productViewModel"
+                var product = new Product
+                {
+                    ProductId = productViewModel.ProductId,
+                    DateCreated = productViewModel.DateCreated,
+                    Description = productViewModel.Description,
+                    Title = productViewModel.Title,
+                    Price = productViewModel.Price,
+                    Quantity = productViewModel.Quantity,
+                    UserId = user.Id,
+                    City = productViewModel.City,
+                    ImagePath = productViewModel.ImagePath,
+                    Active = productViewModel.Active,
+                    ProductTypeId = productViewModel.ProductTypeId
+                };
+
+                //adds the newly built product object to the Product table using _context.Product.Add
+                _context.Product.Add(product);
+                //You have to used SaveChangesAsync in order to actually submit the data to the database
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+                //returns user to the product Details view of the newly created product
+                return RedirectToAction("Details", new { id = product.ProductId });
             }
-            ViewData["ProductTypeId"] = new SelectList(_context.ProductType, "ProductTypeId", "Label", product.ProductTypeId);
-            ViewData["UserId"] = new SelectList(_context.ApplicationUsers, "Id", "Id", product.UserId);
-            return View(product);
+            catch
+            {
+                return View();
+            }
         }
 
         // GET: Products/Edit/5
