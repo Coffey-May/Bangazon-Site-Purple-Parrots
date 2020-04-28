@@ -36,16 +36,20 @@
                             <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">Product Types</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Products" asp-action="Index">Sell Something</a>
+                            <a class="nav-link text-light" asp-area="" asp-controller="Products" asp-action="Create">Sell Something</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-light" asp-area="" asp-controller="Orders" asp-action="Details">View Cart</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                     
                     </ul>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <div class="searchWrapper">
+                            <form class="searchBox" asp-controller="Products" asp-action="Index">
+                                <input class="form-control mr-sm-2" type="text" name="search" placeholder="Search Product or City" aria-label="Search" asp-controller="Products" asp-action="Index">
+                            </form>
+                        </div>
+                    }
                 </div>
             </div>
         </nav>

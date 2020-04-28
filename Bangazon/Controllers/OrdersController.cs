@@ -48,15 +48,16 @@ namespace Bangazon.Controllers
                     .Include(o => o.OrderProducts)
                         .ThenInclude(op => op.Product)
             .FirstOrDefaultAsync();
-            var cart = new OrderDetailViewModel();
-            cart.LineItems = incompleteOrder.OrderProducts.GroupBy(op => op.ProductId)
+            var orderDetailViewModel = new OrderDetailViewModel();
+            orderDetailViewModel.LineItems = incompleteOrder.OrderProducts.GroupBy(op => op.ProductId)
                     .Select(p => new OrderLineItem
                     {
                         Cost = p.Sum(c => c.Product.Price),
                         Units = p.Count(),
                         Product = p.FirstOrDefault().Product,
                     });
-            return View(cart);
+            orderDetailViewModel.Order = incompleteOrder;
+            return View(orderDetailViewModel);
         }
 
         // GET: Orders/Create
