@@ -34,7 +34,7 @@ namespace Bangazon.Controllers
                 .Include(p => p.Products)
                 .Select(pt => new ProductList()
                 {
-                    Id = pt.ProductTypeId,
+                    TypeId = pt.ProductTypeId,
                     Name = pt.Label,
                     ProductCount = pt.Products.Count(),
                     Products = pt.Products.OrderByDescending(p => p.DateCreated).Take(3)
@@ -56,7 +56,7 @@ namespace Bangazon.Controllers
                 .Include(pt => pt.Products)
                 .Select(pt => new ProductList()
                 {
-                    Id = pt.ProductTypeId,
+                    TypeId = pt.ProductTypeId,
                     Name = pt.Label,
                     ProductCount = pt.Products.Count(),
                     Products = pt.Products.Where(p => p.ProductTypeId == id)
@@ -71,123 +71,5 @@ namespace Bangazon.Controllers
 
         }
 
-        // GET: ProductTypes/Create
-
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: ProductTypes/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductTypeId,Label")] ProductType productType)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(productType);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-
-            return View(productType);
-
-        }
-
-        // GET: ProductTypes/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: ProductTypes/Edit/5
-
-        public async Task<ActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var productType = await _context.ProductType.FindAsync(id);
-            if (productType == null)
-            {
-                return NotFound();
-            }
-
-
-            return View(productType);
-
-        }
-
-        // POST: ProductTypes/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int id, [Bind("ProductType,Label")] ProductType productType)
-        {
-            if (id != productType.ProductTypeId)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(productType);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProductTypeExists(productType.ProductTypeId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(productType);
-        }
-
-
-
-        // GET: ProductTypes/Delete/5
-        public async Task<ActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var productType = await _context.ProductType
-                .FirstOrDefaultAsync(m => m.ProductTypeId == id);
-            if (productType == null)
-            {
-                return NotFound();
-            }
-
-            return View(productType);
-
-        }
-
-        // POST: ProductTypes/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> DeleteConfirmed(int id)
-        {
-            var productType = await _context.ProductType.FindAsync(id);
-            _context.ProductType.Remove(productType);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-         private bool ProductTypeExists(int id)
-            {
-                return _context.ProductType.Any(e => e.ProductTypeId == id);
-            }
-        }
-
-    } 
+    }
+}
