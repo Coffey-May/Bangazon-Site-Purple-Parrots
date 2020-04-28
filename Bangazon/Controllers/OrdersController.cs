@@ -74,17 +74,29 @@ namespace Bangazon.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("OrderId,DateCreated,DateCompleted,UserId,PaymentTypeId")] Order order)
+        public async Task<IActionResult> Create(int id)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _context.Add(order);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var user = await GetCurrentUserAsync();
+                var userOrder = _context.Order.Where(o => o.User.Id == user.Id).FirstOrDefault(o => o.PaymentTypeId == null);
+                if (userOrder != null)
+                {
+                    var newOrder = new OrderProduct
+                    {
+                        OrderId = userOrder.OrderId,
+                        ProductId = id
+                    };
+                    _context.OrderProduct.Add(newOrder);
+                    await _context.SaveChangesAsync();
+                }
+                return RedirectToAction("Details", "Orders");
             }
-            ViewData["PaymentTypeId"] = new SelectList(_context.PaymentType, "PaymentTypeId", "AccountNumber", order.PaymentTypeId);
-            ViewData["UserId"] = new SelectList(_context.ApplicationUsers, "Id", "Id", order.UserId);
-            return View(order);
+            catch(Exception ex)
+            {
+                return (View());
+            }
+            
         }
 
         // GET: Orders/Edit/5
