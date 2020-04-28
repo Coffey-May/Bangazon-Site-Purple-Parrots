@@ -10,10 +10,20 @@ a.navbar-brand {
 /* Sticky footer styles
 -------------------------------------------------- */
 html {
-  font-size: 14px;
+    font-size: 14px;
+    background-image: linear-gradient( rgba(255,255,255,.5), rgba(255,255,255,.5)), url('https://i.pinimg.com/originals/cc/ab/32/ccab32388faadceaf0ff278af2bb22f1.jpg');
+    background-size: cover;
 }
+.text-center{
+    background-color:lavenderblush;
+}
+/*.container{
+    padding:0;
+    margin:0 auto;
+}*/
+
 @media (min-width: 768px) {
-  html {
+    html {
     font-size: 16px;
   }
 }
