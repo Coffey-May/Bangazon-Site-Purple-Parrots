@@ -10,6 +10,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
+        @*must include the enctype below to allow for image upload*@
         <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
@@ -47,6 +48,7 @@
                     <input class="form-check-input" asp-for="Active" /> @Html.DisplayNameFor(model => model.Active)
                 </label>
             </div>
+            @*the div that contains the image upload*@
             <div class="form-group">
                 <label asp-for="File" class="control-label"></label>
                 <input asp-for="File" type="file" class="form-control" />

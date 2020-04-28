@@ -111,7 +111,7 @@
 @if (Model.Order.DateCompleted == null)
 {
     <form asp-action="DeleteOrder">
-        <input type="hidden" asp-for="LineItems.First().Product.OrderProducts.First().OrderId" />
+        <input type="hidden" asp-for="@Model.Order.OrderId" />
         <input type="submit" value="Delete" class="btn btn-danger" />
 
     </form>

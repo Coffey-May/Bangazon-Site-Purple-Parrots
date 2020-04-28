@@ -14,6 +14,7 @@ namespace Bangazon.Models.ProductViewModels
         [Key]
         public int ProductId { get; set; }
 
+        //this file datatype is used for image upload
         public IFormFile File { get; set; }
 
         [Required]
