@@ -74,29 +74,57 @@ namespace Bangazon.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int id)
+        public async Task<IActionResult> Create(int id, Product product)
         {
             try
             {
+
+                //defining user
                 var user = await GetCurrentUserAsync();
-                var userOrder = _context.Order.Where(o => o.User.Id == user.Id).FirstOrDefault(o => o.PaymentTypeId == null);
-                if (userOrder != null)
+                //
+                var userOrder = _context.Order.FirstOrDefault(o => o.PaymentTypeId == null && o.UserId == user.Id);
+                if (userOrder == null)
                 {
-                    var newOrder = new OrderProduct
+                    var newOrder = new Order
+                    {
+                        DateCreated = DateTime.Now,
+                        UserId = user.Id
+                    };
+                    _context.Add(newOrder);
+                    await _context.SaveChangesAsync();
+                    id = newOrder.OrderId;
+
+                    var newProductOrder = new OrderProduct
+                    {
+                        OrderId = id,
+                        ProductId = product.ProductId
+                    };
+
+                    _context.OrderProduct.Add(newProductOrder);
+                    await _context.SaveChangesAsync();
+
+                }
+                
+                else
+                {
+                    var order = new OrderProduct
                     {
                         OrderId = userOrder.OrderId,
-                        ProductId = id
+                        ProductId = product.ProductId
                     };
-                    _context.OrderProduct.Add(newOrder);
+                    _context.OrderProduct.Add(order);
                     await _context.SaveChangesAsync();
+
+                    
                 }
-                return RedirectToAction("Details", "Orders");
+
+                return RedirectToAction(nameof(Details));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return (View());
+                return View();
             }
-            
+
         }
 
         // GET: Orders/Edit/5
