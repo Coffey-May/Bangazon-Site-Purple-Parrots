@@ -26,18 +26,42 @@ namespace Bangazon.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index()
+        public async Task<ActionResult> Index(string searchString)
         {
-            var user = await GetCurrentUserAsync();
-            var products = await _context.Product
-                 .Where(p => p.UserId == user.Id)
-                    .Include(b => b.ProductType)
-                    .ToListAsync();
+            //checking first if user input nothing or blank spaces, this returns EVERYTHING
+            if (string.IsNullOrWhiteSpace(searchString))
+            {
+                var user = await GetCurrentUserAsync();
+                var products = await _context.Product
+                        //.Where(p => p.UserId == user.Id)
+                        .Include(b => b.ProductType)
+                        .ToListAsync();
+                return View(products);
+            }
+            //checking now if the searchString matches an existing city in a product, 
+            //helper method CityExists at bottom
+            //If search string doesn't match a city, it searches by product Title
+             else  if (!CityExists(searchString))
+                {
+                    var products = await _context.Product
+                        .Include(p => p.ProductType)
+                        .Include(p => p.User)
+                        .Where(p => p.Title.Contains(searchString)).ToListAsync();
 
-            return View(products);
+                    return View(products);
+                }
+            //If searchstring does match an existing city, it pulls all products matching that city.
+            //Using Equals instead of Contains as the helper method requires a match, not a partial
+                else
+                {
+                    var products = await _context.Product
+                        .Include(p => p.ProductType)
+                        .Include(p => p.User)
+                        .Where(p => p.City.Equals(searchString)).ToListAsync();
 
-        }
-
+                    return View(products);
+                }
+            }
         // GET: Products/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -205,7 +229,13 @@ namespace Bangazon.Controllers
 
         private bool ProductExists(int id)
         {
-            return _context.Product.Any(e => e.ProductId == id);
+            return _context.Product.Any(p => p.ProductId == id);
+        }
+
+        //basically copying the prebuilt ProductExists method but, this time checking for an existing City on a product
+        private bool CityExists(string city)
+        {
+            return _context.Product.Any(p => p.City.Equals(city));
         }
         private Task<ApplicationUser> GetCurrentUserAsync() => _userManager.GetUserAsync(HttpContext.User);
     }
