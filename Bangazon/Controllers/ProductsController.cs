@@ -41,9 +41,7 @@ namespace Bangazon.Controllers
             //checking now if the searchString matches an existing city in a product, 
             //helper method CityExists at bottom
             //If search string doesn't match a city, it searches by product Title
-            else
-            { 
-                if (!CityExists(searchString))
+             else  if (!CityExists(searchString))
                 {
                     var products = await _context.Product
                         .Include(p => p.ProductType)
@@ -64,7 +62,6 @@ namespace Bangazon.Controllers
                     return View(products);
                 }
             }
-        }
         // GET: Products/Details/5
         public async Task<IActionResult> Details(int? id)
         {
