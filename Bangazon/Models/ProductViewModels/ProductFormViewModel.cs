@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -12,6 +13,8 @@ namespace Bangazon.Models.ProductViewModels
     {
         [Key]
         public int ProductId { get; set; }
+
+        public IFormFile File { get; set; }
 
         [Required]
         [DataType(DataType.Date)]

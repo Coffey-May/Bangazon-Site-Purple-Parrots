@@ -10,6 +10,9 @@ using Bangazon.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Bangazon.Models.ProductViewModels;
+using Microsoft.AspNetCore.Http;
+using System.Runtime.InteropServices.ComTypes;
+using System.IO;
 
 namespace Bangazon.Controllers
 {
@@ -102,7 +105,7 @@ namespace Bangazon.Controllers
         // POST: Products/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind("ProductId,DateCreated,Description,Title,Price,Quantity,UserId,City,ImagePath,Active,ProductTypeId")] ProductFormViewModel productViewModel)
+        public async Task<ActionResult> Create([Bind("ProductId,DateCreated,Description,Title,Price,Quantity,UserId,City,ImagePath,Active,ProductTypeId,File")] ProductFormViewModel productViewModel)
         {
             try
             {
@@ -122,10 +125,23 @@ namespace Bangazon.Controllers
                     Quantity = productViewModel.Quantity,
                     UserId = user.Id,
                     City = productViewModel.City,
-                    ImagePath = productViewModel.ImagePath,
                     Active = productViewModel.Active,
                     ProductTypeId = productViewModel.ProductTypeId
                 };
+                if (productViewModel.File != null && productViewModel.File.Length > 0)
+                {
+                    //creates the file name
+                    var fileName = Guid.NewGuid().ToString() + Path.GetFileName(productViewModel.File.FileName); 
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images", fileName);
+
+                    product.ImagePath = fileName;
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await productViewModel.File.CopyToAsync(stream);
+                    }
+                    
+                }
 
                 //adds the newly built product object to the Product table using _context.Product.Add
                 _context.Product.Add(product);
