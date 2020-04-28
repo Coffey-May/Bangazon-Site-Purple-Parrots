@@ -35,26 +35,28 @@ namespace Bangazon.Controllers
         }
 
         // GET: Orders/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<ActionResult> Details()
         {
             var user = await GetCurrentUserAsync();
-           
-
-            var order = await _context.Order
-                .Include(o => o.PaymentType)
+            //var order = await _context.Order
+            //    .Where(o => o.UserId == user.Id)
+            //    .ToListAsync();
+            var incompleteOrder = await _context.Order
+                .Where(o => o.UserId == user.Id && o.PaymentTypeId == null)
+                    .Include(o => o.PaymentType)
                     .Include(o => o.User)
-                        .Include(o => o.OrderProducts)
-                             .ThenInclude(op => op.Product)
-                .FirstOrDefaultAsync(m => m.OrderId == id);
+                    .Include(o => o.OrderProducts)
+                        .ThenInclude(op => op.Product)
+            .FirstOrDefaultAsync();
             var cart = new OrderDetailViewModel();
-            cart.LineItems = order.OrderProducts.GroupBy(op => op.ProductId).Select(p => new OrderLineItem
-            {
-                Cost = p.Sum(c => c.Product.Price),
-                Units = p.Count(),
-                Product = p.FirstOrDefault().Product,
-            }).ToList();
-
-            return View(order);
+            cart.LineItems = incompleteOrder.OrderProducts.GroupBy(op => op.ProductId)
+                    .Select(p => new OrderLineItem
+                    {
+                        Cost = p.Sum(c => c.Product.Price),
+                        Units = p.Count(),
+                        Product = p.FirstOrDefault().Product,
+                    });
+            return View(cart);
         }
 
         // GET: Orders/Create
