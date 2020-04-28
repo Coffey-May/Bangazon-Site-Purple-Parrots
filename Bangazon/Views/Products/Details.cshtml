@@ -68,5 +68,11 @@
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model.ProductId">Edit</a> |
+
     <a asp-action="Index">Back to List</a>
+
 </div>
+    <form asp-controller="Orders" asp-action="Create" asp-route-id="@Model.ProductId">
+        <input type="submit" class="btn btn-primary bg-primary border-primary" value="Add to Order" />
+
+    </form>
