@@ -4,8 +4,6 @@
 @{
     ViewData["Title"] = "Details";
 }
-<h2 class="alert-danger">@TempData["OutOfStock"]</h2>
-@if (Model.Order.DateCompleted == null)
 {<h1>Shopping Cart</h1>}
 
 <div>
@@ -68,7 +66,7 @@
         </tr>
     </thead>
     <tbody>
-        @*I do not know why I had to add the model referebce here*@
+        @*I do not know why I had to add the model reference here*@
         @foreach (Bangazon.Models.OrderViewModels.OrderLineItem item in Model.LineItems)
         {
             <tr>
@@ -105,7 +103,7 @@
     <h3>Total Cart Price:</h3>
 
 </table>
-
+@*refactor later if time permitted, put this on the OrderViewDetails model*@
 <h4>
     Total Order Cost: $@Math.Round(Model.LineItems.Sum(m => m.Cost), 2, MidpointRounding.ToEven)
 </h4>
