@@ -30,7 +30,10 @@ namespace Bangazon.Controllers
         public async Task<ActionResult> Index()
         {
             var user = await GetCurrentUserAsync();
-            var applicationDbContext = _context.Order.Include(o => o.PaymentType).Include(o => o.User);
+            var applicationDbContext = _context.Order
+                .Include(o => o.PaymentType)
+                .Include(o => o.User)
+                .Where(o => o.UserId == user.Id);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -49,17 +52,17 @@ namespace Bangazon.Controllers
                         .ThenInclude(op => op.Product)
             .FirstOrDefaultAsync();
             if (incompleteOrder != null)
-            {
-                var orderDetailViewModel = new OrderDetailViewModel();
-                orderDetailViewModel.LineItems = incompleteOrder.OrderProducts.GroupBy(op => op.ProductId)
-                        .Select(p => new OrderLineItem
-                        {
-                            Cost = p.Sum(c => c.Product.Price),
-                            Units = p.Count(),
-                            Product = p.FirstOrDefault().Product,
-                        });
-                orderDetailViewModel.Order = incompleteOrder;
-                return View(orderDetailViewModel);
+            { 
+            var orderDetailViewModel = new OrderDetailViewModel();
+            orderDetailViewModel.LineItems = incompleteOrder.OrderProducts.GroupBy(op => op.ProductId)
+                    .Select(p => new OrderLineItem
+                    {
+                        Cost = p.Sum(c => c.Product.Price),
+                        Units = p.Count(),
+                        Product = p.FirstOrDefault().Product,
+                    });
+            orderDetailViewModel.Order = incompleteOrder;
+            return View(orderDetailViewModel);
             }
             else
             {
@@ -97,8 +100,10 @@ namespace Bangazon.Controllers
                     };
                     _context.Order.Add(newOrder);
                     await _context.SaveChangesAsync();
+                    
                     //pulls id from newly created Order to plug into OrderProduct object 
                     int orderId = newOrder.OrderId;
+
                     //adds product to order by creating OrderProduct object
                     var newOrderProduct = new OrderProduct
                     {
@@ -108,9 +113,9 @@ namespace Bangazon.Controllers
                     _context.OrderProduct.Add(newOrderProduct);
                     await _context.SaveChangesAsync();
                     return RedirectToAction("Details", "Orders");
-                }
-                else
-                {
+
+                } else {
+
                     //creates just the order product if an order already exists
                     var newOrderProduct = new OrderProduct
                     {
@@ -122,13 +127,67 @@ namespace Bangazon.Controllers
                     return RedirectToAction("Details", "Orders");
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 return (NotFound());
             }
+            
         }
 
-       
+        // GET: Orders/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var order = await _context.Order.FindAsync(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+            ViewData["PaymentTypeId"] = new SelectList(_context.PaymentType, "PaymentTypeId", "AccountNumber", order.PaymentTypeId);
+            ViewData["UserId"] = new SelectList(_context.ApplicationUsers, "Id", "Id", order.UserId);
+            return View(order);
+        }
+
+        // POST: Orders/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("OrderId,DateCreated,DateCompleted,UserId,PaymentTypeId")] Order order)
+        {
+            if (id != order.OrderId)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(order);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!OrderExists(order.OrderId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["PaymentTypeId"] = new SelectList(_context.PaymentType, "PaymentTypeId", "AccountNumber", order.PaymentTypeId);
+            ViewData["UserId"] = new SelectList(_context.ApplicationUsers, "Id", "Id", order.UserId);
+            return View(order);
+        }
 
         // GET: Orders/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -153,16 +212,23 @@ namespace Bangazon.Controllers
         // POST: Orders/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(OrderProduct item)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var user = await GetCurrentUserAsync();
-            var itemToDelete = await _context.OrderProduct
-            // finds OrderProductId that is equal to the item that has OrderProductId
-                .FirstOrDefaultAsync(op => op.OrderProductId == item.OrderProductId);
-            // removes it item
-            _context.OrderProduct.Remove(itemToDelete);
+            var order = await _context.Order.FindAsync(id);
+            _context.Order.Remove(order);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Details));
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: Orders/Delete/5
+        [HttpPost, ActionName("DeleteOrder")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteOrder(int id)
+        {
+            var order = await _context.Order.FindAsync(id);
+            _context.Order.Remove(order);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         private bool OrderExists(int id)
