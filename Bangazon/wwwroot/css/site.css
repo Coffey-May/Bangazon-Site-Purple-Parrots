@@ -17,11 +17,13 @@ html {
 .text-center{
     background-color:lavenderblush;
 }
+/*.container, .orderDetails, .table  {
+    background-color: rgba(255, 255, 255, 0.42);
+}*/
 /*.container{
     padding:0;
     margin:0 auto;
 }*/
-
 @media (min-width: 768px) {
     html {
     font-size: 16px;

@@ -1,4 +1,4 @@
-﻿@model Bangazon.Models.Order
+﻿@*@model Bangazon.Models.Order
 
 @{
     ViewData["Title"] = "Delete";
@@ -37,9 +37,9 @@
         </dd class>
     </dl>
     
-    <form asp-action="Delete">
+    <form asp-action="DeleteWholeOrder">
         <input type="hidden" asp-for="OrderId" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>
-</div>
+</div>*@
