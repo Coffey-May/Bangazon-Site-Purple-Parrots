@@ -71,7 +71,7 @@
 
     <a asp-action="Index">Back to List</a>
 
-    <form asp-controller="Orders" asp-action="Create">
+    <form asp-controller="Orders" asp-action="Create" asp-route-id="@Model.ProductId">
         <input type="submit" class="btn btn-primary bg-primary border-primary" value="Add to Order" />
 
     </form>

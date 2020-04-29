@@ -74,57 +74,51 @@ namespace Bangazon.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int id, Product product)
+        public async Task<IActionResult> Create(int id)
         {
             try
             {
-
-                //defining user
                 var user = await GetCurrentUserAsync();
-                //
-                var userOrder = _context.Order.FirstOrDefault(o => o.PaymentTypeId == null && o.UserId == user.Id);
+                var userOrder = _context.Order.FirstOrDefault(o => o.User.Id == user.Id && o.PaymentTypeId == null);
                 if (userOrder == null)
                 {
+                    //creates order object
                     var newOrder = new Order
                     {
                         DateCreated = DateTime.Now,
                         UserId = user.Id
                     };
-                    _context.Add(newOrder);
+                    _context.Order.Add(newOrder);
                     await _context.SaveChangesAsync();
-                    id = newOrder.OrderId;
-
-                    var newProductOrder = new OrderProduct
+                    //pulls id from newly created Order to plug into OrderProduct object 
+                    int orderId = newOrder.OrderId;
+                    //adds product to order by creating OrderProduct object
+                    var newOrderProduct = new OrderProduct
                     {
-                        OrderId = id,
-                        ProductId = product.ProductId
+                        OrderId = orderId,
+                        ProductId = id
                     };
-
-                    _context.OrderProduct.Add(newProductOrder);
+                    _context.OrderProduct.Add(newOrderProduct);
                     await _context.SaveChangesAsync();
-
+                    return RedirectToAction("Details", "Orders");
                 }
-                
                 else
                 {
-                    var order = new OrderProduct
+                    //creates just the order product if an order already exists
+                    var newOrderProduct = new OrderProduct
                     {
                         OrderId = userOrder.OrderId,
-                        ProductId = product.ProductId
+                        ProductId = id
                     };
-                    _context.OrderProduct.Add(order);
+                    _context.OrderProduct.Add(newOrderProduct);
                     await _context.SaveChangesAsync();
-
-                    
+                    return RedirectToAction("Details", "Orders");
                 }
-
-                return RedirectToAction(nameof(Details));
             }
             catch (Exception ex)
             {
-                return View();
+                return (NotFound());
             }
-
         }
 
         // GET: Orders/Edit/5
