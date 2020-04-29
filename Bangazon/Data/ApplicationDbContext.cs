@@ -16,6 +16,7 @@ namespace Bangazon.Data {
         public DbSet<PaymentType> PaymentType { get; set; }
         public DbSet<Order> Order { get; set; }
         public DbSet<OrderProduct> OrderProduct { get; set; }
+        public DbSet<LikeProduct> LikeProduct { get; set; }
 
         protected override void OnModelCreating (ModelBuilder modelBuilder) {
             base.OnModelCreating (modelBuilder);
@@ -211,6 +212,15 @@ namespace Bangazon.Data {
                     OrderProductId = 2,
                     OrderId = 1,
                     ProductId = 2
+                }
+            );
+            modelBuilder.Entity<LikeProduct>().HasData(
+                new LikeProduct()
+                {
+                    LikeId = 1,
+                    UserId = "00000000-ffff-ffff-ffff-ffffffffffff",
+                    ProductId = 2,
+                    Like = true
                 }
             );
         }

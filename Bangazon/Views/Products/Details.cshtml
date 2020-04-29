@@ -67,7 +67,18 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.ProductId">Edit</a> |
+    @using (Html.BeginForm("LikePreference", "LikeProduct"))
+    {
+        <input asp-for="IsLiked" type="hidden" name="liked" value="True" class="form-control" />
+        <input asp-for="ProductId" type="hidden" value="@Model.ProductId" class="form-control" />
+        <input type="submit" value="Like" class="btn btn-primary" />
+    }
+    @using (Html.BeginForm("LikePreference", "LikeProduct"))
+    {
+        <input asp-for="IsLiked" type="hidden" name="liked" value="False" class="form-control" />
+        <input asp-for="ProductId" type="hidden" value="@Model.ProductId" class="form-control" />
+        <input type="submit" value="Dislike" class="btn btn-primary" />
+    }
 
     <a asp-action="Index">Back to List</a>
 
