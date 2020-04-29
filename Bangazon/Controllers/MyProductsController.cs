@@ -70,7 +70,12 @@ public async Task<IActionResult> Delete(int? id)
 public async Task<IActionResult> DeleteConfirmed(int id)
 {
     var product = await _context.Product.FindAsync(id);
-    _context.Product.Remove(product);
+    var itemToDelete = _context.OrderProduct.Where(op => op.ProductId == id);
+    foreach (OrderProduct op in itemToDelete)
+            {
+                _context.OrderProduct.Remove(op);
+            }
+            _context.Product.Remove(product);
     await _context.SaveChangesAsync();
     return RedirectToAction(nameof(Index));
 }
