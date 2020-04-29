@@ -70,6 +70,42 @@ namespace Bangazon.Controllers
             }
         }
 
+
+        // OrderHistory: hyperlink will route user to detail
+        
+       
+        public async Task<ActionResult> OrderDetails(int id)
+        {
+            var user = await GetCurrentUserAsync();
+            //var order = await _context.Order
+            //    .Where(o => o.UserId == user.Id)
+            //    .ToListAsync();
+            var incompleteOrder = await _context.Order
+                .Where(o => o.UserId == user.Id && o.OrderId == id)
+                    .Include(o => o.PaymentType)
+                    .Include(o => o.User)
+                    .Include(o => o.OrderProducts)
+                        .ThenInclude(op => op.Product)
+            .FirstOrDefaultAsync();
+            if (incompleteOrder != null)
+            {
+                var orderDetailViewModel = new OrderDetailViewModel();
+                orderDetailViewModel.LineItems = incompleteOrder.OrderProducts.GroupBy(op => op.ProductId)
+                        .Select(p => new OrderLineItem
+                        {
+                            Cost = p.Sum(c => c.Product.Price),
+                            Units = p.Count(),
+                            Product = p.FirstOrDefault().Product,
+                        });
+                orderDetailViewModel.Order = incompleteOrder;
+                return View(orderDetailViewModel);
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
         // GET: Orders/Create
         public IActionResult Create()
         {
