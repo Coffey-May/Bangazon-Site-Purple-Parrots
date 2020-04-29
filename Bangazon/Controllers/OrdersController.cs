@@ -210,27 +210,34 @@ namespace Bangazon.Controllers
         }
 
         // POST: Orders/Delete/5
-        [HttpPost, ActionName("DeleteOrder")]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> DeleteConfirmed(OrderProduct order)
+         public async Task<IActionResult> DeleteConfirmed(OrderProduct item)
         {
-            var chosenOrder = await _context.Order.FindAsync(order);
             var user = await GetCurrentUserAsync();
-            var ItemsToDelete =  _context.OrderProduct.Where(p => p.OrderId == chosenOrder.OrderId);
-            _context.Order.Remove(chosenOrder);
+            var itemToDelete = await _context.OrderProduct
+            // finds OrderProductId that is equal to the item that has OrderProductId
+                .FirstOrDefaultAsync(op => op.OrderProductId == item.OrderProductId);
+            // removes it item
+            _context.OrderProduct.Remove(itemToDelete);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Details));
         }
 
         // POST: Orders/Delete/5
-        [HttpPost, ActionName("DeleteOrder")]
+        [HttpPost, ActionName("DeleteWholeOrder")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteOrder(int id)
+        public async Task<IActionResult> DeleteOrder(OrderProduct item)
         {
-            var order = await _context.Order.FindAsync(id);
+            var order = await _context.Order.FindAsync(item.Order.OrderId);
+            var itemToDelete = _context.OrderProduct.Where(op => op.OrderId == item.Order.OrderId);
+            foreach (OrderProduct p in itemToDelete)
+            {
+                _context.OrderProduct.Remove(p);
+            }
             _context.Order.Remove(order);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Home");
         }
 
         private bool OrderExists(int id)
