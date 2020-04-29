@@ -79,7 +79,7 @@ namespace Bangazon.Controllers
             try
             {
                 var user = await GetCurrentUserAsync();
-                var userOrder = _context.Order.Where(o => o.User.Id == user.Id).FirstOrDefault(o => o.PaymentTypeId == null);
+                var userOrder = _context.Order.FirstOrDefault(o => o.User.Id == user.Id && o.PaymentTypeId == null);
                 if (userOrder == null)
                 {
                     //creates order object
@@ -119,7 +119,7 @@ namespace Bangazon.Controllers
             }
             catch(Exception ex)
             {
-                return (View());
+                return (NotFound());
             }
             
         }

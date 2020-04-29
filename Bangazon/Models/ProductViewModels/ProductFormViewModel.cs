@@ -32,6 +32,7 @@ namespace Bangazon.Models.ProductViewModels
 
         [Required]
         [DisplayFormat(DataFormatString = "{0:C}")]
+        [Range(0.00, 10000.00, ErrorMessage = "Price should have positive value and less than 10K")]
         public double Price { get; set; }
 
         [Required]
