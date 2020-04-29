@@ -30,7 +30,10 @@ namespace Bangazon.Controllers
         public async Task<ActionResult> Index()
         {
             var user = await GetCurrentUserAsync();
-            var applicationDbContext = _context.Order.Include(o => o.PaymentType).Include(o => o.User);
+            var applicationDbContext = _context.Order
+                .Include(o => o.PaymentType)
+                .Include(o => o.User)
+                .Where(o => o.UserId == user.Id);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -48,6 +51,8 @@ namespace Bangazon.Controllers
                     .Include(o => o.OrderProducts)
                         .ThenInclude(op => op.Product)
             .FirstOrDefaultAsync();
+            if (incompleteOrder != null)
+            { 
             var orderDetailViewModel = new OrderDetailViewModel();
             orderDetailViewModel.LineItems = incompleteOrder.OrderProducts.GroupBy(op => op.ProductId)
                     .Select(p => new OrderLineItem
@@ -58,6 +63,11 @@ namespace Bangazon.Controllers
                     });
             orderDetailViewModel.Order = incompleteOrder;
             return View(orderDetailViewModel);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         // GET: Orders/Create
