@@ -11,9 +11,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Bangazon.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class LikeProductsController : ControllerBase
+    public class LikeProductsController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -81,28 +79,26 @@ namespace Bangazon.Controllers
 
         // POST: api/LikeProducts
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult<LikeProduct>> LikeProduct(int ProductId, bool liked)
+        public async Task<ActionResult> LikePreference(Product product)
         {
             var user = await GetCurrentUserAsync();
             var currentPreference = await _context.LikeProduct
-                .FirstOrDefaultAsync(l => l.ProductId == ProductId && l.UserId == user.Id);
+                .FirstOrDefaultAsync(l => l.ProductId == product.ProductId && l.UserId == user.Id);
             if (currentPreference == null)
             {
                 var likeProduct = new LikeProduct()
                 {
                     UserId = user.Id,
-                    ProductId = ProductId,
-                    Like = liked
+                    ProductId = product.ProductId,
+                    Like = true
                 };
                 _context.LikeProduct.Add(likeProduct);
             } else {
-                currentPreference.Like = liked;
-                _context.LikeProduct.Add(currentPreference);
+                _context.LikeProduct.Remove(currentPreference);
             }
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Details", new { id = ProductId });
+            return RedirectToAction("Details", "Products", new { id = product.ProductId });
         }
 
         // DELETE: api/LikeProducts/5

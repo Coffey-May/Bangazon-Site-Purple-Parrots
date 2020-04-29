@@ -6,5 +6,6 @@ namespace Bangazon.Models.ProductViewModels
   public class ProductDetailViewModel
   {
     public Product Product { get; set; }
-  }
+    public bool IsLiked { get; set; }
+    }
 }
