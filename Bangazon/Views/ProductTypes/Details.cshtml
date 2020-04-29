@@ -1,0 +1,38 @@
+﻿@model IEnumerable<Bangazon.Models.ProductTypeViewModels.ProductList>
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Product Type : @Html.DisplayFor(model => Model.ToList()[0].Name)</h4>
+</div>
+
+
+
+
+<body>
+@foreach (var productType in Model)
+{
+    @foreach (var item in productType.Products)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Quantity)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Price)
+            </td>
+        </tr>
+    }
+}
+</body>
+<div>
+
+    <a asp-action="Index">Back to List</a>
+</div>

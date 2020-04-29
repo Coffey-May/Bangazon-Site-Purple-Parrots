@@ -10,6 +10,9 @@ using Bangazon.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Bangazon.Models.ProductViewModels;
+using Microsoft.AspNetCore.Http;
+using System.Runtime.InteropServices.ComTypes;
+using System.IO;
 
 namespace Bangazon.Controllers
 {
@@ -102,7 +105,7 @@ namespace Bangazon.Controllers
         // POST: Products/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind("ProductId,DateCreated,Description,Title,Price,Quantity,UserId,City,ImagePath,Active,ProductTypeId")] ProductFormViewModel productViewModel)
+        public async Task<ActionResult> Create([Bind("ProductId,DateCreated,Description,Title,Price,Quantity,UserId,City,ImagePath,Active,ProductTypeId,File")] ProductFormViewModel productViewModel)
         {
             try
             {
@@ -122,10 +125,28 @@ namespace Bangazon.Controllers
                     Quantity = productViewModel.Quantity,
                     UserId = user.Id,
                     City = productViewModel.City,
-                    ImagePath = productViewModel.ImagePath,
                     Active = productViewModel.Active,
                     ProductTypeId = productViewModel.ProductTypeId
                 };
+                if (productViewModel.File != null && productViewModel.File.Length > 0)
+                {
+                    //creates the file name and makes it unique by generating a Guid and adding that to the file name
+                    var fileName = Guid.NewGuid().ToString() + Path.GetFileName(productViewModel.File.FileName); 
+                    //defines the filepath by adding the fileName above and combines it with the wwwroot directory 
+                    //which is where our images are stored
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images", fileName);
+
+                    //adds the newly created fileName to the product object we built up above to be stored in 
+                    //the database as the ImagePath
+                    product.ImagePath = fileName;
+
+                    //what actually allows us to save the file to the folder path
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await productViewModel.File.CopyToAsync(stream);
+                    }
+                    
+                }
 
                 //adds the newly built product object to the Product table using _context.Product.Add
                 _context.Product.Add(product);
