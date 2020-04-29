@@ -212,12 +212,16 @@ namespace Bangazon.Controllers
         // POST: Orders/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+         public async Task<IActionResult> DeleteConfirmed(OrderProduct item)
         {
-            var order = await _context.Order.FindAsync(id);
-            _context.Order.Remove(order);
+            var user = await GetCurrentUserAsync();
+            var itemToDelete = await _context.OrderProduct
+            // finds OrderProductId that is equal to the item that has OrderProductId
+                .FirstOrDefaultAsync(op => op.OrderProductId == item.OrderProductId);
+            // removes it item
+            _context.OrderProduct.Remove(itemToDelete);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Details));
         }
 
         // POST: Orders/Delete/5
