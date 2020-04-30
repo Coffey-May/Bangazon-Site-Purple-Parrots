@@ -81,8 +81,12 @@
         }*@
 
     <form asp-controller="LikeProducts" asp-action="LikePreference">
-        <input type="hidden" asp-for="@Model.ProductId"/>
+        <input type="hidden" asp-for="@Model.ProductId" />
         <input type="submit" value="Like" class="btn btn-danger" />
+    </form>
+    <form asp-controller="LikeProducts" asp-action="DisLikePreference">
+        <input type="hidden" asp-for="@Model.ProductId" />
+        <input type="submit" value="Dislike" class="btn btn-danger" />
     </form>
 
     <a asp-action="Index">Back to List</a>

@@ -93,7 +93,44 @@ namespace Bangazon.Controllers
                     Like = true
                 };
                 _context.LikeProduct.Add(likeProduct);
-            } else {
+            } else if (currentPreference.Like == false) 
+            {
+                currentPreference.Like = true;
+                _context.LikeProduct.Update(currentPreference);
+            }
+            else
+            {
+                _context.LikeProduct.Remove(currentPreference);
+            }
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", "Products", new { id = product.ProductId });
+        }
+
+        // POST: api/LikeProducts
+        [HttpPost]
+        public async Task<ActionResult> DisLikePreference(Product product)
+        {
+            var user = await GetCurrentUserAsync();
+            var currentPreference = await _context.LikeProduct
+                .FirstOrDefaultAsync(l => l.ProductId == product.ProductId && l.UserId == user.Id);
+            if (currentPreference == null)
+            {
+                var likeProduct = new LikeProduct()
+                {
+                    UserId = user.Id,
+                    ProductId = product.ProductId,
+                    Like = false
+                };
+                _context.LikeProduct.Add(likeProduct);
+            }
+            else if (currentPreference.Like == false)
+            {
+                currentPreference.Like = true;
+                _context.LikeProduct.Update(currentPreference);
+            }
+            else
+            {
                 _context.LikeProduct.Remove(currentPreference);
             }
             await _context.SaveChangesAsync();
