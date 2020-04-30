@@ -248,6 +248,13 @@ namespace Bangazon.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        //// GET: Product/Reccomended
+        //public async Task<ActionResult> Reccomend()
+        //{
+        //    var user = await GetCurrentUserAsync();
+        //    var recProd = _context
+        //}
+
         private bool ProductExists(int id)
         {
             return _context.Product.Any(p => p.ProductId == id);

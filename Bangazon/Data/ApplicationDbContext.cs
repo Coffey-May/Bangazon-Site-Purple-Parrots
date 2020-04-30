@@ -11,6 +11,7 @@ namespace Bangazon.Data {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
         public ApplicationDbContext (DbContextOptions<ApplicationDbContext> options) : base (options) { }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        //this line makes the table for Product
         public DbSet<Product> Product { get; set; }
         public DbSet<ProductType> ProductType { get; set; }
         public DbSet<PaymentType> PaymentType { get; set; }
@@ -81,7 +82,7 @@ namespace Bangazon.Data {
                     AccountNumber = "4102948572991"
                 }
             );
-
+            //this line makes an exmample product Type
             modelBuilder.Entity<ProductType>().HasData(
                 new ProductType()
                 {
@@ -134,7 +135,7 @@ namespace Bangazon.Data {
                     Label = "Automotive"
                 }
             );
-
+            //this makes an exmaple product
             modelBuilder.Entity<Product>().HasData(
                 new Product()
                 {
